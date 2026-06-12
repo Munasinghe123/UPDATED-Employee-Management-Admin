@@ -41,7 +41,7 @@ router.post(
 )
 
 router.put(
-    '/employees/:id',
+    '/update-employee/:id',
     verifyToken,
     authorizeRoles('admin'),
     updateEmployee

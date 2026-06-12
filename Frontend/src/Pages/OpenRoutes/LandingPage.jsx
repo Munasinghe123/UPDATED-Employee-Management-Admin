@@ -8,7 +8,7 @@ import gsap from "gsap"
 import bg from '../../Images/bg.png'
 import { useContext } from "react"
 import { AuthContext } from "../../context/AuthContext"
-import { Lock, UserPlus } from "lucide-react"
+import { Lock, UserPlus, LayoutDashboard } from "lucide-react"
 
 
 function LandingPage() {
@@ -56,16 +56,22 @@ function LandingPage() {
 
             {
               user ? (
-                <div className="absolute left-0 -bottom-5">
-                  <Link
-                    to="/dashboard/attendance"
-                    className="px-8 py-3 bg-[#7C3AED] cursor-pointer
-                                rounded-xl font-semibold text-white shadow-lg 
-                                hover:shadow-[#7C3AED]/40
-                                flex items-center overflow-hidden">
-                    Dashboard
-                  </Link>
-                </div>
+               
+                <Link
+                  to="/dashboard/attendance"
+                  className=" px-6 py-3 bg-[#7C3AED]
+                          rounded-xl
+                          font-bold
+                          text-white
+                          shadow-lg shadow-purple-900/30
+                          border border-purple-400/20
+                          hover:scale-105
+                          transition-all duration-300
+                          flex items-center gap-2 w-fit">
+                  <LayoutDashboard size={18} strokeWidth={2.5} />
+                  Dashboard
+                </Link>
+               
               ) :
                 (
                   <div className="flex gap-5">

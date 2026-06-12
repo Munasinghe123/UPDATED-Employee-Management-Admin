@@ -85,11 +85,25 @@ const allEmployees = async (req, res) => {
         // const [employees] = await db.query('SELECT * FROM employee')
 
         const [employees] = await db.query(
-            `select e.employeeId, e.name, e.userName, e.role, e.substationId, a.name As createdBy, e.createdAt
-            from employee e
-            left join admin a
-            On a.employeeId = e.createdBy
-            where e.isActive = 1`
+            `SELECT
+    e.employeeId,
+    e.name,
+    e.userName,
+    e.role,
+    e.substationId,
+    creator.name AS createdBy,
+    editor.name AS updatedBy,
+    e.createdAt,
+    e.updatedAt
+FROM employee e
+
+LEFT JOIN admin creator
+    ON creator.employeeId = e.createdBy
+
+LEFT JOIN admin editor
+    ON editor.employeeId = e.updatedBy
+
+WHERE e.isActive = 1`
         )
 
         // console.log(employees);
@@ -136,9 +150,18 @@ const updateEmployee = async (req, res) => {
         const { id } = req.params;
         const { name, userName, role, substationId } = req.body;
 
+        const updatedBy = req.user.employeeId;
+
         await db.query(
-            "UPDATE employee SET name=?, userName=?, role=?, substationId=? WHERE employeeId=?",
-            [name, userName, role, substationId, id]
+            `UPDATE employee
+             SET name=?,
+                 userName=?,
+                 role=?,
+                 substationId=?,
+                 updatedBy=?,
+                 updatedAt=NOW()
+             WHERE employeeId=?`,
+            [name, userName, role, substationId, updatedBy, id]
         );
 
         res.json({ message: "Employee updated" });

@@ -183,6 +183,8 @@ export default function Employees() {
               <th>Substation</th>
               <th>Created By</th>
               <th>Created At</th>
+              <th>Updated By</th>
+              <th>Updated At</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -206,6 +208,18 @@ export default function Employees() {
                     {formatDateTime(emp.createdAt)?.timePart}
                   </span>
 
+                </td>
+                <td>{emp.updatedBy || "-"}</td>
+
+                <td>
+                  {emp.updatedAt
+                    ? formatDateTime(emp.updatedAt)?.datePart
+                    : "-"}
+
+                     <br />
+                  <span className="text-xs text-gray-400">
+                    {formatDateTime(emp.updatedAt)?.timePart}
+                  </span>
                 </td>
                 {/* ACTIONS */}
                 <td className="flex justify-center gap-3 py-2" onClick={(e) => e.stopPropagation()}>
@@ -284,7 +298,7 @@ export default function Employees() {
                     <option key={idx} value={sub.substationId}>{sub.name}</option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-3 bottom-1 text-purple-400 pointer-events-none" />
+                <ChevronDown className="absolute right-3 bottom-1 text-[#7C3AED] pointer-events-none" />
               </div>
             </div>
 
@@ -297,7 +311,7 @@ export default function Employees() {
               </button>
               <button
                 onClick={handleSubmit}
-                className="bg-purple-600 px-4 py-2 rounded text-sm"
+                className="bg-[#7C3AED] px-4 py-2 rounded-full text-sm"
               >
                 Save
               </button>
