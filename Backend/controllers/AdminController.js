@@ -355,4 +355,31 @@ const searchEmployees = async (req, res) => {
     }
 };
 
-module.exports = { searchEmployees, getAttendanceById, getFullLogs, allEmployees, getTodayCheckins, getAttendance, getAttendanceSummary, disableEmployee, updateEmployee, addEmployee, getOtHours }
+const disabledEmployees = async (req, res) => {
+
+    try {
+        const [employees] = await db.query(
+            `
+            SELECT e.employeeId,e.name,e.userName,e.role,e.substationId ,a.name as createdBy,e.createdAt,e.updatedBy,e.updatedAt 
+            FROM employee e
+            LEFT JOIN admin a
+            ON a.employeeId = e.createdBy
+            WHERE e.isActive=0`
+        )
+        // console.log(employees);
+
+        return res.status(200).json({
+            data: employees
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+
+}
+
+
+module.exports = { searchEmployees, disabledEmployees, getAttendanceById, getFullLogs, allEmployees, getTodayCheckins, getAttendance, getAttendanceSummary, disableEmployee, updateEmployee, addEmployee, getOtHours }

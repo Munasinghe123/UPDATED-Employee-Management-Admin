@@ -36,7 +36,7 @@ export default function Attendance() {
         { withCredentials: true }
       );
       setSummary(res.data);
-      console.log("attendence summary",res.data);
+      // console.log("attendence summary",res.data);
     } catch (err) {
       console.error(err);
     }
@@ -52,7 +52,7 @@ export default function Attendance() {
         }
       );
       setAttendance(res.data.data);
-      console.log(res.data.data);
+      // console.log(res.data.data);
     } catch (err) {
       console.error(err);
     }
@@ -122,7 +122,7 @@ export default function Attendance() {
       <div className="flex items-center gap-4">
         <DatePicker
   selected={date}
-  onChange={(date) => setDate(date)}
+ onChange={(d) => setDate(d.toISOString().split("T")[0])}
   placeholderText="Select date"
   customInput={<DateInput placeholderText="Select date" />}
 />

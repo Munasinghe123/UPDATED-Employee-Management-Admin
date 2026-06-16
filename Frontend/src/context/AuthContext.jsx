@@ -22,7 +22,7 @@ const AuthProvider = ({ children }) => {
                     { withCredentials: true }
                 );
 
-                console.log(response.data.accessToken)
+                // console.log(response.data.accessToken)
 
                 const token = response.data.accessToken;
                 const decoded = jwtDecode(token);

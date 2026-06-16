@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { Clock, Users, ClockPlus, LogOut, NotepadText, Building2 } from "lucide-react";
+import { Clock, Users, ClockPlus, LogOut, NotepadText, Building2,UserRoundX  } from "lucide-react";
 import Logo from '../Images/Leco.png'
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
@@ -21,6 +21,7 @@ export default function Sidebar() {
         { label: "Daily log sheet", icon: NotepadText, path: "/dashboard/logsheet" },
         { label: "Substations", icon: Building2, path: "/dashboard/substations" },
         { label: "Overtime Hours", icon: ClockPlus, path: "/dashboard/overtime" },
+        {label: "Disabled Users", icon: UserRoundX, path: "/dashboard/disabled-employees"}
 
     ];
 
