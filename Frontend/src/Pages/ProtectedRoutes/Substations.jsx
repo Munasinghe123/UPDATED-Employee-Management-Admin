@@ -8,6 +8,7 @@ import {
   useMap
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { House, MapPin } from 'lucide-react';
 
 function Substations() {
 
@@ -31,7 +32,7 @@ function Substations() {
     const fetchSubstations = async () => {
       try {
         const res = await axios.get(`${import.meta.env.VITE_API_URL}/substation/get`, { withCredentials: true });
-        console.log(res.data);
+        // console.log(res.data);
         setSubstations(res.data);
       } catch (err) {
         console.error(err);
@@ -107,18 +108,38 @@ function Substations() {
 
   //  Current location
   const getCurrentLocation = () => {
-    navigator.geolocation.getCurrentPosition((pos) => {
+    navigator.geolocation.getCurrentPosition(async (pos) => {
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
 
-      setMarkerPos([lat, lng]);
-      setShouldFly(true);
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+        );
 
-      setForm(prev => ({
-        ...prev,
-        latitude: lat,
-        longitude: lng
-      }));
+        const data = await res.json();
+
+        setMarkerPos([lat, lng]);
+        setShouldFly(true);
+
+        setForm(prev => ({
+          ...prev,
+          latitude: lat,
+          longitude: lng,
+          address: data.display_name || ""
+        }));
+
+        setSearch(data.display_name || "");
+
+      } catch (err) {
+        console.error("Failed to fetch address:", err);
+
+        setForm(prev => ({
+          ...prev,
+          latitude: lat,
+          longitude: lng
+        }));
+      }
     });
   };
 
@@ -289,14 +310,14 @@ function Substations() {
 
             {/* DISPLAY */}
             {form.latitude && (
-              <p className="text-xs text-gray-400">
-                📍 {form.latitude}, {form.longitude}
+              <p className="text-xs text-gray-400 w-full">
+                <span className='flex gap-3 items-center '><MapPin /> {form.latitude}, {form.longitude} </span>
               </p>
             )}
 
             {form.address && (
               <p className="text-xs text-gray-400">
-                🏠 {form.address}
+                <span className='flex gap-3 items-center '> <House /> {form.address}</span>
               </p>
             )}
 

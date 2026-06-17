@@ -3,6 +3,9 @@ import axios from "axios";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { ChevronDown, Search, Building2 } from 'lucide-react';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import DateInput from "../../Components/DateInput";
 
 function EmployeeLogs() {
 
@@ -12,6 +15,8 @@ function EmployeeLogs() {
   const [substation, setSubstation] = useState("")
   const [employeeId, setEmployeeId] = useState("")
   const [allSubstations, setAllSubstations] = useState([]);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   const exportToExcel = (log) => {
     const ws = XLSX.utils.aoa_to_sheet([]);
@@ -87,8 +92,16 @@ function EmployeeLogs() {
   useEffect(() => {
 
     axios.get(
-      `${import.meta.env.VITE_API_URL}/admin/getFullLogs?substation=${substation}&employeeId=${employeeId}`,
-      { withCredentials: true }
+      `${import.meta.env.VITE_API_URL}/admin/getFullLogs`,
+      {
+        params: {
+          substation,
+          employeeId,
+          startDate: startDate?.toISOString().split("T")[0],
+          endDate: endDate?.toISOString().split("T")[0]
+        },
+        withCredentials: true
+      }
     )
       .then((res) => {
         setLogs(res.data);
@@ -99,7 +112,7 @@ function EmployeeLogs() {
         console.error(err);
         setLoading(false);
       });
-  }, [substation, employeeId]);
+  }, [substation, employeeId, startDate, endDate]);
 
   useEffect(() => {
     const fetchSubstations = async () => {
@@ -155,6 +168,21 @@ function EmployeeLogs() {
             <ChevronDown className="w-4 h-4 text-[#7C3AED] shrink-0 pointer-events-none" />
           </div>
         </h2>
+
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+          placeholderText="Start date"
+          customInput={<DateInput placeholderText="Start date" />}
+        />
+
+        <DatePicker
+          selected={endDate}
+          onChange={(date) => setEndDate(date)}
+          placeholderText="End date"
+          minDate={startDate}
+          customInput={<DateInput placeholderText="End date" />}
+        />
       </div>
 
 

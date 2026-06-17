@@ -1,7 +1,7 @@
 import React from 'react'
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-
+import { UserCheck } from 'lucide-react';
 
 function DisabledEmployees() {
 
@@ -42,6 +42,20 @@ function DisabledEmployees() {
     return { datePart, timePart };
   };
 
+  const enableUser = async (employeeId) => {
+    try {
+      const response = await axios.put(`${import.meta.env.VITE_API_URL}/admin/enable-employee/${employeeId}`,
+        {},
+        { withCredentials: true }
+      )
+
+      setEmployees(prev =>
+        prev.filter(emp => emp.employeeId !== employeeId)
+      );
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <div>
@@ -58,6 +72,7 @@ function DisabledEmployees() {
               <th>Created At</th>
               <th>Updated By</th>
               <th>Updated At</th>
+              <th>Enable User</th>
             </tr>
           </thead>
 
@@ -91,6 +106,13 @@ function DisabledEmployees() {
                   <span className="text-xs text-gray-400">
                     {formatDateTime(emp.updatedAt)?.timePart}
                   </span>
+                </td>
+                <td>
+                  <button onClick={() => enableUser(emp.employeeId)}>
+                    <UserCheck
+                      className='w-full text-blue-400 hover:text-blue-500' />
+                  </button>
+
                 </td>
               </tr>
             ))}

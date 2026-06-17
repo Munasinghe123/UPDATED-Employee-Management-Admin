@@ -2,6 +2,21 @@ const db = require("../config/db-config")
 const bcrypt = require('bcrypt');
 
 
+const checkLoggedIn = async (req, res) => {
+
+    try {
+        console.log("loged in user", req.user);
+
+        res.status(200).json({ user: req.user });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message
+        });
+
+    }
+}
+
 const getTodayCheckins = async (req, res) => {
     try {
         const [result] = await db.query(`
@@ -176,7 +191,11 @@ const disableEmployee = async (req, res) => {
         console.log("disable hit", req.params)
         const { id } = req.params;
 
-        await db.query("UPDATE employee SET isActive=0 WHERE employeeId=?", [id]);
+        console.log("logged in user", req.user);
+
+        await db.query(`UPDATE employee 
+                        SET isActive=0 , updatedBy=? , updatedAt=NOW() 
+                        WHERE employeeId=?`, [req.user.employeeId, id]);
 
         res.json({ message: "Employee disabled" });
     } catch (err) {
@@ -185,41 +204,73 @@ const disableEmployee = async (req, res) => {
 };
 
 
+const enableEmployee = async (req, res) => {
+    try {
+        console.log("enable hit", req.params)
+        const { id } = req.params;
+
+        console.log("logged in user", req.user);
+
+        await db.query(`UPDATE employee 
+                        SET isActive=1 , updatedBy=? , updatedAt=NOW() 
+                        WHERE employeeId=?`, [req.user.employeeId, id]);
+
+        res.json({ message: "Employee enabled" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+
 const getFullLogs = async (req, res) => {
     try {
-        const { substation, employeeId } = req.query;
+        const {
+            substation,
+            employeeId,
+            startDate,
+            endDate
+        } = req.query;
 
-        //  Clean inputs
         const cleanSub = substation?.trim();
         const cleanEmp = employeeId?.trim();
 
-        if (!cleanSub && !cleanEmp) {
-            return res.json([]);
-        }
-
-        //  Base query
         let query = `
-      SELECT dl.*, s.name AS substationName
-      FROM daily_logs dl
-      JOIN substations s ON dl.substationId = s.substationId
-      WHERE 1=1
-    `;
+            SELECT dl.*, s.name AS substationName
+            FROM daily_logs dl
+            JOIN substations s ON dl.substationId = s.substationId
+            WHERE 1=1
+        `;
 
         const params = [];
 
-        //  Add filters dynamically
+        // Substation filter
         if (cleanSub) {
             query += ` AND dl.substationId = ?`;
             params.push(cleanSub);
         }
 
+        // Employee filter
         if (cleanEmp) {
             query += ` AND dl.employeeId = ?`;
             params.push(cleanEmp);
         }
 
-        //  Sorting
-        query += ` ORDER BY dl.logDate DESC, dl.logTime DESC`;
+        // Start date filter
+        if (startDate) {
+            query += ` AND DATE(dl.logDate) >= ?`;
+            params.push(startDate);
+        }
+
+        // End date filter
+        if (endDate) {
+            query += ` AND DATE(dl.logDate) <= ?`;
+            params.push(endDate);
+        }
+
+        query += `
+            ORDER BY dl.logDate DESC,
+                     dl.logTime DESC
+        `;
 
         const [logs] = await db.query(query, params);
 
@@ -227,29 +278,42 @@ const getFullLogs = async (req, res) => {
             return res.json([]);
         }
 
-        //  Attach related data (same as before)
         const fullLogs = [];
 
         for (const log of logs) {
             const logId = log.id;
 
-            const [feeders] = await db.query(`
-        SELECT feederNo, current
-        FROM feeder_logs
-        WHERE dailyLogId = ?
-      `, [logId]);
+            const [feeders] = await db.query(
+                `
+                SELECT feederNo, current
+                FROM feeder_logs
+                WHERE dailyLogId = ?
+                `,
+                [logId]
+            );
 
-            const [stationRows] = await db.query(`
-        SELECT voltage, amps
-        FROM station_supply_logs
-        WHERE dailyLogId = ?
-      `, [logId]);
+            const [stationRows] = await db.query(
+                `
+                SELECT voltage, amps
+                FROM station_supply_logs
+                WHERE dailyLogId = ?
+                `,
+                [logId]
+            );
 
-            const [transformers] = await db.query(`
-        SELECT transformerNo, kv33, kv11, amps11, tapPosition, pf
-        FROM transformer_logs
-        WHERE dailyLogId = ?
-      `, [logId]);
+            const [transformers] = await db.query(
+                `
+                SELECT transformerNo,
+                       kv33,
+                       kv11,
+                       amps11,
+                       tapPosition,
+                       pf
+                FROM transformer_logs
+                WHERE dailyLogId = ?
+                `,
+                [logId]
+            );
 
             fullLogs.push({
                 ...log,
@@ -263,7 +327,9 @@ const getFullLogs = async (req, res) => {
 
     } catch (error) {
         console.error("Error fetching logs:", error);
-        return res.status(500).json({ message: "Server error" });
+        return res.status(500).json({
+            message: "Server error"
+        });
     }
 };
 
@@ -382,4 +448,4 @@ const disabledEmployees = async (req, res) => {
 }
 
 
-module.exports = { searchEmployees, disabledEmployees, getAttendanceById, getFullLogs, allEmployees, getTodayCheckins, getAttendance, getAttendanceSummary, disableEmployee, updateEmployee, addEmployee, getOtHours }
+module.exports = { searchEmployees,enableEmployee, checkLoggedIn, disabledEmployees, getAttendanceById, getFullLogs, allEmployees, getTodayCheckins, getAttendance, getAttendanceSummary, disableEmployee, updateEmployee, addEmployee, getOtHours }
