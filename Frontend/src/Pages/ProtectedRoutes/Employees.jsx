@@ -15,6 +15,7 @@ export default function Employees() {
   const [clickedEmployee, setClickedEmployee] = useState(null);
   const [clickedEmployeeDetails, setClickedEmployeeDetails] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [originalEmployeeId, setOriginalEmployeeId] = useState("");
 
   const [form, setForm] = useState({
     employeeId: "",
@@ -216,7 +217,7 @@ export default function Employees() {
                     ? formatDateTime(emp.updatedAt)?.datePart
                     : "-"}
 
-                     <br />
+                  <br />
                   <span className="text-xs text-gray-400">
                     {formatDateTime(emp.updatedAt)?.timePart}
                   </span>
@@ -224,7 +225,7 @@ export default function Employees() {
                 {/* ACTIONS */}
                 <td className="flex justify-center gap-3 py-2" onClick={(e) => e.stopPropagation()}>
                   <button
-                    onClick={() => { setUpdateModal(true); setSelectedEmployee(emp) }}
+                    onClick={() => { setUpdateModal(true); setSelectedEmployee(emp); setOriginalEmployeeId(emp.employeeId) }}
                     className="text-blue-400 hover:text-blue-500"
                   >
                     <Pencil size={16} />
@@ -364,7 +365,7 @@ export default function Employees() {
       {/* update modal */}
       {updateModal && selectedEmployee && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-[#0D1422] p-6 rounded-2xl w-[400px] border border-[#1A2B3C] shadow-xl animate-fadeIn">
+          <div className="relative bg-[#0D1422] p-6 rounded-2xl w-[400px] border border-[#1A2B3C] shadow-xl animate-fadeIn">
             <h3 className="mb-4 font-semibold text-white">
               Update Employee
             </h3>
@@ -372,8 +373,10 @@ export default function Employees() {
             <div className="space-y-3">
               <input
                 value={selectedEmployee.employeeId}
-                disabled
-                className="w-full bg-[#1e1e2f] px-3 py-2 rounded opacity-60 cursor-not-allowed"
+                onChange={(e) =>
+                  setSelectedEmployee({ ...selectedEmployee, employeeId: e.target.value })
+                }
+                className="w-full bg-[#1e1e2f] px-3 py-2 rounded"
               />
 
               <input
@@ -394,16 +397,28 @@ export default function Employees() {
                 placeholder="Username"
               />
 
-              <input
-                type="password"
-                placeholder="New Password"
-                onChange={(e) =>
-                  setSelectedEmployee({ ...selectedEmployee, password: e.target.value })
-                }
-                className="w-full bg-[#1e1e2f] px-3 py-2 rounded"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" :"password"}
+                  placeholder="New Password"
+                  onChange={(e) =>
+                    setSelectedEmployee({ ...selectedEmployee, password: e.target.value })
+                  }
+                  className="w-full bg-[#1e1e2f] px-3 py-2 rounded"
+                />
 
-              <select
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
+
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+
+
+
+              {/* <select
                 value={selectedEmployee.substationId}
                 onChange={(e) =>
                   setSelectedEmployee({ ...selectedEmployee, substationId: e.target.value })
@@ -412,7 +427,7 @@ export default function Employees() {
               >
                 <option value="PSS-ANI">Aniyakanda PSS</option>
                 <option value="PSS-MAB">Mabola PSS</option>
-              </select>
+              </select> */}
             </div>
 
             <div className="flex justify-end gap-3 mt-4">
@@ -429,9 +444,11 @@ export default function Employees() {
               <button
                 onClick={async () => {
                   try {
+                    console.log("Original:", originalEmployeeId);
+                    console.log("New:", selectedEmployee.employeeId);
                     // FIXED: Changed endpoint layout string path to target update-employee
                     await axios.put(
-                      `${import.meta.env.VITE_API_URL}/admin/update-employee/${selectedEmployee.employeeId}`,
+                      `${import.meta.env.VITE_API_URL}/admin/update-employee/${originalEmployeeId}`,
                       selectedEmployee,
                       { withCredentials: true }
                     );

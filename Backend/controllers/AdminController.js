@@ -163,20 +163,26 @@ const addEmployee = async (req, res) => {
 const updateEmployee = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, userName, role, substationId } = req.body;
+        const { name, userName, substationId, employeeId,password } = req.body;
+
+        console.log(req.body);
 
         const updatedBy = req.user.employeeId;
 
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         await db.query(
             `UPDATE employee
-             SET name=?,
+             SET 
+                employeeId=?,
+                name=?,
                  userName=?,
-                 role=?,
+                 password=?,
                  substationId=?,
                  updatedBy=?,
                  updatedAt=NOW()
              WHERE employeeId=?`,
-            [name, userName, role, substationId, updatedBy, id]
+            [employeeId,name, userName,hashedPassword, substationId, updatedBy, id]
         );
 
         res.json({ message: "Employee updated" });
@@ -448,4 +454,4 @@ const disabledEmployees = async (req, res) => {
 }
 
 
-module.exports = { searchEmployees,enableEmployee, checkLoggedIn, disabledEmployees, getAttendanceById, getFullLogs, allEmployees, getTodayCheckins, getAttendance, getAttendanceSummary, disableEmployee, updateEmployee, addEmployee, getOtHours }
+module.exports = { searchEmployees, enableEmployee, checkLoggedIn, disabledEmployees, getAttendanceById, getFullLogs, allEmployees, getTodayCheckins, getAttendance, getAttendanceSummary, disableEmployee, updateEmployee, addEmployee, getOtHours }
