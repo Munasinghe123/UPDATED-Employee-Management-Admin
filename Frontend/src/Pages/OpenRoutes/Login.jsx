@@ -9,7 +9,7 @@ import axios from 'axios'
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { jwtDecode } from 'jwt-decode';
-import { Lock, User } from "lucide-react"
+import { Lock, User, Eye, EyeOffIcon } from "lucide-react"
 import { ShieldUser } from 'lucide-react';
 
 function Login() {
@@ -19,15 +19,16 @@ function Login() {
   const navigate = useNavigate();
   const [employeeId, setId] = useState("");
   const [password, setPassword] = useState("");
-  const [error,setError] = useState("")
+  const [error, setError] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
 
   const loginUser = async (e) => {
 
     try {
       // Swapped out localhost for the environment variable config
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/login`, 
-        { employeeId, password }, 
+        `${import.meta.env.VITE_API_URL}/auth/login`,
+        { employeeId, password },
         { withCredentials: true }
       );
       console.log(response.data.accessToken);
@@ -44,6 +45,10 @@ function Login() {
       setError(error.response.data.message);
     }
 
+  }
+
+  const iconVisible = () => {
+    setShowPassword(!showPassword);
   }
 
   return (
@@ -153,7 +158,7 @@ function Login() {
               </div>
             </div>
 
-            <div>
+            <div className="relative">
               <label className="block text-sm text-white/60 mb-2">
                 Password
               </label>
@@ -167,7 +172,7 @@ function Login() {
                 />
 
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full py-3 pl-12 rounded-xl
             bg-white/[0.04]
@@ -178,6 +183,9 @@ function Login() {
             focus:border-violet-400/40
             transition-all duration-300"
                 />
+                <button onClick={() => iconVisible()} className="absolute text-violet-400 right-3 top-1/2 -translate-y-1/2 cursor-pointer">
+                  {showPassword ? <EyeOffIcon /> : <Eye/>}
+                </button>
               </div>
             </div>
 

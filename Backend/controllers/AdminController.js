@@ -163,34 +163,83 @@ const addEmployee = async (req, res) => {
 const updateEmployee = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, userName, substationId, employeeId,password } = req.body;
-
-        console.log(req.body);
+        const {
+            name,
+            userName,
+            substationId,
+            employeeId,
+            password
+        } = req.body;
 
         const updatedBy = req.user.employeeId;
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        let result;
 
-        await db.query(
-            `UPDATE employee
-             SET 
-                employeeId=?,
-                name=?,
-                 userName=?,
-                 password=?,
-                 substationId=?,
-                 updatedBy=?,
-                 updatedAt=NOW()
-             WHERE employeeId=?`,
-            [employeeId,name, userName,hashedPassword, substationId, updatedBy, id]
-        );
+        if (password && password.trim() !== "") {
 
-        res.json({ message: "Employee updated" });
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            [result] = await db.query(
+                `UPDATE employee
+                 SET
+                    employeeId = ?,
+                    name = ?,
+                    userName = ?,
+                    password = ?,
+                    substationId = ?,
+                    updatedBy = ?,
+                    updatedAt = NOW()
+                 WHERE employeeId = ?`,
+                [
+                    employeeId,
+                    name,
+                    userName,
+                    hashedPassword,
+                    substationId,
+                    updatedBy,
+                    id
+                ]
+            );
+
+        } else {
+
+            [result] = await db.query(
+                `UPDATE employee
+                 SET
+                    employeeId = ?,
+                    name = ?,
+                    userName = ?,
+                    substationId = ?,
+                    updatedBy = ?,
+                    updatedAt = NOW()
+                 WHERE employeeId = ?`,
+                [
+                    employeeId,
+                    name,
+                    userName,
+                    substationId,
+                    updatedBy,
+                    id
+                ]
+            );
+
+        }
+
+        console.log("Update Result:", result);
+
+        res.json({
+            success: true,
+            message: "Employee updated"
+        });
+
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("UPDATE ERROR:", err);
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
     }
 };
-
 
 const disableEmployee = async (req, res) => {
     try {

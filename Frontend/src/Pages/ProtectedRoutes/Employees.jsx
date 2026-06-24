@@ -68,7 +68,7 @@ export default function Employees() {
   const fetchSubstations = async () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/substation/get`, { withCredentials: true });
-      console.log(res.data);
+      console.log("all sustations", res.data);
       setSubstations(res.data);
     } catch (err) {
       console.error(err);
@@ -194,9 +194,17 @@ export default function Employees() {
             {filteredEmployees.map(emp => (
               <tr key={emp.employeeId}
                 onClick={() => { setViewEmployee(true); setClickedEmployee(emp.employeeId); }}
-                className="border-t border-[#1A2B3C] text-center hover:bg-[#111A2B] cursor-pointer">
+                className="group border-t border-[#1A2B3C] text-center hover:bg-[#111A2B] cursor-pointer">
 
-                <td className="text-left py-2">{emp.employeeId}</td>
+                <td className="relative text-left py-2">{emp.employeeId}
+                  <span
+                    className="absolute left-0 -top-3 opacity-0 group-hover:opacity-100 transition bg-black text-white text-xs px-2
+                       py-1 rounded  whitespace-nowrap  pointer-events-none  z-50"
+                  >
+                    Click to view attendance details
+                  </span>
+
+                </td>
                 <td>{emp.name}</td>
                 <td>{emp.userName}</td>
                 <td>{emp.role}</td>
@@ -226,7 +234,7 @@ export default function Employees() {
                 <td className="flex justify-center gap-3 py-2" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => { setUpdateModal(true); setSelectedEmployee(emp); setOriginalEmployeeId(emp.employeeId) }}
-                    className="text-blue-400 hover:text-blue-500"
+                    className="text-blue-400 hover:text-blue-500 cursor-pointer"
                   >
                     <Pencil size={16} />
                   </button>
@@ -236,7 +244,7 @@ export default function Employees() {
                       setSelectedEmployee(emp);
                       setDisableModal(true);
                     }}
-                    className="text-red-400 hover:text-red-500"
+                    className="text-red-400 hover:text-red-500 cursor-pointer"
                   >
                     <UserX size={16} />
                   </button>
@@ -371,63 +379,82 @@ export default function Employees() {
             </h3>
 
             <div className="space-y-3">
-              <input
-                value={selectedEmployee.employeeId}
-                onChange={(e) =>
-                  setSelectedEmployee({ ...selectedEmployee, employeeId: e.target.value })
-                }
-                className="w-full bg-[#1e1e2f] px-3 py-2 rounded"
-              />
-
-              <input
-                value={selectedEmployee.name}
-                onChange={(e) =>
-                  setSelectedEmployee({ ...selectedEmployee, name: e.target.value })
-                }
-                className="w-full bg-[#1e1e2f] px-3 py-2 rounded"
-                placeholder="Name"
-              />
-
-              <input
-                value={selectedEmployee.userName}
-                onChange={(e) =>
-                  setSelectedEmployee({ ...selectedEmployee, userName: e.target.value })
-                }
-                className="w-full bg-[#1e1e2f] px-3 py-2 rounded"
-                placeholder="Username"
-              />
-
-              <div className="relative">
+              <div className="space-y-1">
+                <div className="text-[#4E6680]">Employee Id</div>
                 <input
-                  type={showPassword ? "text" :"password"}
-                  placeholder="New Password"
+                  value={selectedEmployee.employeeId}
                   onChange={(e) =>
-                    setSelectedEmployee({ ...selectedEmployee, password: e.target.value })
+                    setSelectedEmployee({ ...selectedEmployee, employeeId: e.target.value })
                   }
                   className="w-full bg-[#1e1e2f] px-3 py-2 rounded"
                 />
-
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
-
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+              </div>
+              <div className="space-y-1">
+                <div className="text-[#4E6680]">Name </div>
+                <input
+                  value={selectedEmployee.name}
+                  onChange={(e) =>
+                    setSelectedEmployee({ ...selectedEmployee, name: e.target.value })
+                  }
+                  className="w-full bg-[#1e1e2f] px-3 py-2 rounded"
+                  placeholder="Name"
+                />
               </div>
 
+              <div className="space-y-1">
+                <div className="text-[#4E6680]">Username </div>
+                <input
+                  value={selectedEmployee.userName}
+                  onChange={(e) =>
+                    setSelectedEmployee({ ...selectedEmployee, userName: e.target.value })
+                  }
+                  className="w-full bg-[#1e1e2f] px-3 py-2 rounded"
+                  placeholder="Username"
+                />
+              </div>
+              <div className="space-y-1">
+                <div className="text-[#4E6680]">Password </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="New Password"
+                    onChange={(e) =>
+                      setSelectedEmployee({ ...selectedEmployee, password: e.target.value })
+                    }
+                    className="w-full bg-[#1e1e2f] px-3 py-2 rounded"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
 
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
 
-              {/* <select
-                value={selectedEmployee.substationId}
-                onChange={(e) =>
-                  setSelectedEmployee({ ...selectedEmployee, substationId: e.target.value })
-                }
-                className="w-full bg-[#1e1e2f] px-3 py-2 rounded"
-              >
-                <option value="PSS-ANI">Aniyakanda PSS</option>
-                <option value="PSS-MAB">Mabola PSS</option>
-              </select> */}
+              <div className="space-y-1">
+                <div className="text-[#4E6680]">Substation </div>
+                <select
+                  value={selectedEmployee.substationId}
+                  onChange={(e) =>
+                    setSelectedEmployee({
+                      ...selectedEmployee,
+                      substationId: e.target.value
+                    })
+                  }
+                  className="w-full bg-[#1e1e2f] px-3 py-2 rounded"
+                >
+                  {substations.data?.map((sub, index) => (
+                    <option
+                      key={index}
+                      value={sub.substationId}
+                    >
+                      {sub.substationId}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className="flex justify-end gap-3 mt-4">
