@@ -16,6 +16,8 @@ export default function Topbar({ setSidebarOpen }) {
         return "Substations";
       case "/dashboard/overtime":
         return "Overtime Hours";
+      case "/dashboard/disabled-employees":
+        return "Disabled employees"
       default:
         return "System Overview";
     }

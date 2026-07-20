@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/AuthRoutes');
 const adminRoutes  = require('./routes/AdminRoutes')
 const substationRoutes = require('./routes/SubstationRoutes')
-const runWeeklyHoursJob = require('./jobs/weeklyHours.job');
+const otcalculation = require('./jobs/weeklyHours.job')
 
 const port = process.env.PORT;
 const app = express();
@@ -56,5 +56,5 @@ app.listen(port, "0.0.0.0", () => {
     console.log(`Server is running on port ${port}`);
 });
 
-runWeeklyHoursJob();
 
+otcalculation();
